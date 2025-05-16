@@ -23,6 +23,7 @@ const Home: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-800">Dashboard Overview</h2>
             {/* Add your dashboard components here */}
+            
           </div>
         </main>
       </div>
