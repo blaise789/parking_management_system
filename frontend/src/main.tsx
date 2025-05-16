@@ -7,16 +7,18 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { ThemeProvider } from "@mui/material";
 import THEME from "./theme";
+import { MantineProvider } from "@mantine/core";
 // import App from './App.tsx'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {/* store container */}
-
-    <ThemeProvider theme={THEME}>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </ThemeProvider>
+    <MantineProvider>
+      <ThemeProvider theme={THEME}>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </ThemeProvider>
+    </MantineProvider>
   </StrictMode>
 );

@@ -1,6 +1,6 @@
 // src/redux/slices/authSlice.ts
 import { User } from '@/types';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 interface  UserState  {
     user:User,
@@ -26,8 +26,11 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         login: (state,{payload}) => {
-             
-            state.user = payload.user;
+            state.isLoggedIn=true,
+            // state.user = {...payload.user};
+            console.log(payload)
+
+
             localStorage.setItem('token', payload.token);
         },
         logout: (state) => {

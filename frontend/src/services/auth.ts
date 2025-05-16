@@ -20,7 +20,7 @@ try{
     localStorage.setItem("token",response.data.data.token)
     setTimeout(() => {
         window.location.replace("/")
-    }, 1000);
+    }, 100);
     
 }   
 catch(error:any){
