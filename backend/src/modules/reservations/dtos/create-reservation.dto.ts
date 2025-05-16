@@ -7,7 +7,7 @@ export class CreateReservationDto {
   @IsInt()
   vehicleId: number;
 
-  @ApiProperty({ description: 'ID of the parking slot', example: 1 })
+  @ApiProperty({ description: 'ID of the parking lot', example: 1 })
   @IsInt()
   lotId: number;
 

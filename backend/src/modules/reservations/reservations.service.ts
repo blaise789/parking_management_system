@@ -41,6 +41,11 @@ export class ReservationsService {
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         status: 'PENDING',
+        lot: {
+          connect: {
+            id: lotId,
+          },
+        },
         user: {
           connect: {
             id: userId,
@@ -55,12 +60,11 @@ export class ReservationsService {
     });
   }
   async findAvailableSlots(lotId: number, startDate: Date, endDate: Date) {
-    console.log(lotId)
+    console.log(lotId);
     return await this.prisma.parkingSlot.findMany({
       where: {
         lotId,
       },
-
     });
   }
 

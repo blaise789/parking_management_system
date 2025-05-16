@@ -8,8 +8,11 @@ export class AdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = request.headers.authorization;
+    console.log(token)
+    
     if (token && token.startsWith('Bearer ')) {
       const tokenValue = token.split(' ')[1];
+      console.log(tokenValue)
       try {
         const decodedToken = this.jwtService.verify(tokenValue);
         const user = await this.prisma.user.findUnique({
@@ -19,6 +22,7 @@ export class AdminGuard implements CanActivate {
         switch (user.role) {
           case 'ADMIN':
             request.user = decodedToken;
+            console.log(request.user)
             return true;
           default:
             return false;

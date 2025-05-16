@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ParkingLotsService } from './parking-lots.service';
 import { CreateParkingLotDto } from './dtos/create-parking-lot.dto';
 import { UpdateParkingLotDto } from './dtos/update-parking-lot.dto';
@@ -7,11 +7,15 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
-  ApiTags
+  ApiTags,
+  ApiBearerAuth
 } from '@nestjs/swagger';
+import { AdminGuard } from 'src/guards/admin.guard';
+import { AuthRequest } from 'src/types';
 
 @ApiTags('Parking Lots')
 @Controller('parking-lots')
+@ApiBearerAuth()
 export class ParkingLotsController {
   constructor(private readonly parkingLotService: ParkingLotsService) {}
 
@@ -107,8 +111,10 @@ export class ParkingLotsController {
     status: 409, 
     description: 'User is not a clerk' 
   })
-  assignClerk(@Param('id') id: string, @Param('clerkId') clerkId: string) {
-    return this.parkingLotService.assignClerk(+id, clerkId);
+  @UseGuards(AdminGuard)
+  assignClerk(@Req() req:AuthRequest,@Param('id') lotId: string, @Param('clerkId') clerkId: string) {
+    console.log(req.user.id)
+    return this.parkingLotService.assignClerk(+lotId, clerkId);
   }
 
   @Patch(':id/remove-clerk/:clerkId')
