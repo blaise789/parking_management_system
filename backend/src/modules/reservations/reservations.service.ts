@@ -1,4 +1,80 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { ReservationStatus } from '@prisma/client';
+import { CreateReservationDto } from './dtos/create-reservation.dto';
 
 @Injectable()
-export class ReservationsService {}
+export class ReservationsService {
+  constructor(private prisma: PrismaService) {}
+
+  async create(userId: string, createReservationDto: CreateReservationDto) {
+    // check if vehicle exists
+    const { vehicleId, lotId, startTime, endTime } = createReservationDto;
+    // console.log(lotId);
+
+    const vehicle = await this.prisma.vehicle.findUnique({
+      where: {
+        id: vehicleId,
+        userId,
+      },
+    });
+    if (!vehicle)
+      throw new ForbiddenException(
+        'your are not allowed to register this vehicle ',
+      );
+    const availableSlots = await this.findAvailableSlots(
+      lotId,
+      new Date(startTime),
+      new Date(endTime),
+    );
+    if (availableSlots.length == 0) {
+      throw new BadRequestException('No available slots for this lot');
+    }
+
+    return this.prisma.reservation.create({
+      data: {
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        status: 'PENDING',
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+        vehicle: {
+          connect: {
+            id: vehicleId,
+          },
+        },
+      },
+    });
+  }
+  async findAvailableSlots(lotId: number, startDate: Date, endDate: Date) {
+    console.log(lotId)
+    return await this.prisma.parkingSlot.findMany({
+      where: {
+        lotId,
+      },
+
+    });
+  }
+
+  // async confirm(id: number) {
+  //   return this.prisma.reservation.update({
+  //     where: { id },
+  //     data: { status: 'CONFIRMED' }
+  //   });
+  // }
+
+  // async cancel(id: number) {
+  //   return this.prisma.reservation.update({
+  //     where: { id },
+  //     data: { status: 'CANCELLED' }
+  //   });
+  // }
+}

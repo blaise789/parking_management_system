@@ -26,6 +26,7 @@ export class ParkingLotsController {
     description: 'Parking lot name already exists or invalid slot configuration' 
   })
   @ApiBody({ type: CreateParkingLotDto })
+
   create(@Body() createParkingLotDto: CreateParkingLotDto) {
     return this.parkingLotService.create(createParkingLotDto);
   }
@@ -141,4 +142,8 @@ export class ParkingLotsController {
   updateCapacity(@Param('id') id: string, @Body() { capacity }: { capacity: number }) {
     return this.parkingLotService.updateCapacity(+id, capacity);
   }
+  // @Get("/parking-lot/available")
+  // checkAvailability(id:number){
+  //   return this.parkingLotService.checkAvailability(id);
+  // }
 }

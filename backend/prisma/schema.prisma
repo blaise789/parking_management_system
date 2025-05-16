@@ -63,7 +63,7 @@ model User {
   updatedAt            DateTime            @updatedAt @map("updated_at")
   companyId            String?
   assignedLots         ParkingLot[]        @relation("AssignedClerks")
-  Vehicle              Vehicle[]
+  vehicle              Vehicle[]
   Reservation          Reservation[]
   Ticket               Ticket[]
 
@@ -125,8 +125,8 @@ model Reservation {
   vehicleId Int
   slot      ParkingSlot?      @relation(fields: [slotId], references: [id])
   slotId    Int?
-  lot       ParkingLot        @relation(fields: [lotId], references: [id])
-  lotId     Int
+  lot       ParkingLot?        @relation(fields: [lotId], references: [id])
+  lotId     Int?
   user      User              @relation(fields: [userId], references: [id])
   userId    String
   ticket    Ticket?

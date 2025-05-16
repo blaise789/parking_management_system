@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateParkingLotDto } from "./dtos/create-parking-lot.dto" ;
 import { UpdateParkingLotDto } from './dtos/update-parking-lot.dto';
@@ -6,7 +6,20 @@ import { SlotType } from '@prisma/client';
 
 @Injectable()
 export class ParkingLotsService {
+ 
   constructor(private readonly prisma: PrismaService) {}
+async   checkAvailability(id: number) {
+    const availableSlots= await this.prisma.parkingSlot.count({
+      where:{
+        lotId:id
+      }
+    })
+    if (availableSlots<=0){
+     return  "plot is full"
+    }
+    return true
+   
+  }
 
   /**
    * Create a new parking lot with optional slots
