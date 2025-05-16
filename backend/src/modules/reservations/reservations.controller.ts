@@ -8,6 +8,7 @@ import {
     ParseIntPipe,
     Req,
     UseGuards,
+    Get,
   } from '@nestjs/common';
   import { ReservationsService } from './reservations.service';
   import { CreateReservationDto } from './dtos/create-reservation.dto';
@@ -40,6 +41,13 @@ import { DriverGuard } from 'src/guards/driver.guard';
     create(@Req() req:AuthRequest, @Body() createReservationDto: CreateReservationDto) {
       console.log(req.user.id)
       return this.reservationsService.create(req.user.id,createReservationDto);
+    }
+    
+    @Get(
+      
+    )
+    getAllReservations(){
+
     }
   
   //   @Patch(':id/confirm')

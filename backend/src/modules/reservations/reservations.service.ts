@@ -38,14 +38,9 @@ export class ReservationsService {
 
     return this.prisma.reservation.create({
       data: {
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+
         status: 'PENDING',
-        lot: {
-          connect: {
-            id: lotId,
-          },
-        },
+  
         user: {
           connect: {
             id: userId,
@@ -63,7 +58,7 @@ export class ReservationsService {
     console.log(lotId);
     return await this.prisma.parkingSlot.findMany({
       where: {
-        lotId,
+        
       },
     });
   }

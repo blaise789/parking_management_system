@@ -6,6 +6,12 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+enum PasswordResetStatus {
+  PENDING
+  IDLE
+
+  @@map("password_reset_status")
+}
 
 enum VerificationStatus {
   VERIFIED
@@ -14,60 +20,135 @@ enum VerificationStatus {
 
   @@map("verification_status")
 }
-
-enum PasswordResetStatus {
-  PENDING
-  IDLE
-
-  @@map("password_reset_status")
-}
-
-enum SlotType {
-  STANDARD
-  COMPACT
-  HANDICAPPED
-  EV_CHARGING
-  RESERVED
-}
-
-enum ReservationStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
 enum Role {
   ADMIN
   DRIVER
   CLERK
 }
 
+enum VehicleType {
+  CAR
+  MOTORCYCLE
+  TRUCK
+
+  @@map("vehicle_type")
+}
+
+enum VehicleSize {
+  SMALL
+  MEDIUM
+  LARGE
+
+  @@map("vehicle_size")
+}
+
+enum SlotStatus {
+  AVAILABLE
+  UNAVAILABLE
+
+  @@map("slot_status")
+}
+
+enum ReservationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("reservation_status")
+}
+
+enum ParkingLocation {
+  NORTH
+  SOUTH
+  EAST
+  WEST
+
+  @@map("parking_location")
+}
+
 model User {
-  id                   String              @id @default(uuid())
-  firstName            String
-  lastName             String
-  email                String              @unique
+  id        String    @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String    @unique
+  password  String
+  role      Role?     @default(DRIVER)
+  vehicles  Vehicle[]
+
   telephone            String?
-  password             String
   profilePicture       File?               @relation(fields: [profilePictureId], references: [id])
   profilePictureId     String?             @map("profile_picture_id")
-  role                 Role?
   verificationStatus   VerificationStatus  @default(UNVERIFIED) @map("verification_status")
   verificationCode     String?             @map("verification_code")
   verificationExpires  DateTime?           @map("verification_expires")
   passwordResetStatus  PasswordResetStatus @default(IDLE) @map("password_reset_status")
   passwordResetCode    String?             @map("password_reset_code")
   passwordResetExpires DateTime?           @map("password_reset_expires")
-  createdAt            DateTime            @default(now()) @map("created_at")
-  updatedAt            DateTime            @updatedAt @map("updated_at")
+ 
   companyId            String?
-  assignedLots         ParkingLot[]        @relation("AssignedClerks")
-  vehicle              Vehicle[]
-  Reservation          Reservation[]
-  Ticket               Ticket[]
+
+  reservations Reservation[]
+  logs         Log[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model Vehicle {
+  id           Int        @id @default(autoincrement())
+  userId       String        @map("user_id")
+  plateNumber  String        @unique @map("plate_number")
+  vehicleType  VehicleType   @map("vehicle_type")
+  size         VehicleSize
+  attributes   Json? // For storing additional details like color, model, etc.
+  user         User          @relation(fields: [userId], references: [id])
+  reservations Reservation[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@map("vehicles")
+}
+
+model ParkingSlot {
+  id           String          @id @default(uuid())
+  slotNumber   String          @unique @map("slot_number")
+  size         VehicleSize
+  vehicleType  VehicleType     @map("vehicle_type")
+  location     ParkingLocation
+  status       SlotStatus      @default(AVAILABLE)
+  reservations Reservation[]
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  @@map("parking_slots")
+}
+
+model Reservation {
+  id          String            @id @default(uuid())
+  userId      String            @map("user_id")
+  vehicleId   Int         @map("vehicle_id")
+  slotId      String?           @map("slot_id")
+  slotNumber  String?           @map("slot_number")
+  status      ReservationStatus @default(PENDING)
+  user        User              @relation(fields: [userId], references: [id])
+  vehicle     Vehicle           @relation(fields: [vehicleId], references: [id])
+  parkingSlot ParkingSlot?      @relation(fields: [slotId], references: [id])
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@map("reservations")
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  action    String
+  details   Json?
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("logs")
 }
 
 model File {
@@ -82,66 +163,4 @@ model File {
   users        User[]
 
   @@map("files")
-}
-
-model ParkingLot {
-  id             Int           @id @default(autoincrement())
-  name           String
-  capacity       Int
-  // Stores { open: "08:00", close: "20:00" }
-  openingTime String @map("opening_time")
-  closingTime String @map("closing_time")
-  isActive       Boolean       @default(true)
-  slots          ParkingSlot[]
-  reservations   Reservation[]
-  clerks         User[]        @relation("AssignedClerks")
-}
-
-model ParkingSlot {
-  id           Int           @id @default(autoincrement())
-  slotNumber   String
-  type         SlotType      @default(STANDARD)
-  lot          ParkingLot    @relation(fields: [lotId], references: [id])
-  lotId        Int
-  reservations Reservation[]
-}
-
-model Vehicle {
-  id           Int           @id @default(autoincrement())
-  licensePlate String        @unique
-  make         String?
-  model        String?
-  user         User          @relation(fields: [userId], references: [id])
-  userId       String
-  reservations Reservation[]
-}
-
-model Reservation {
-  id        Int               @id @default(autoincrement())
-  startTime DateTime
-  endTime   DateTime
-  status    ReservationStatus @default(PENDING)
-  vehicle   Vehicle           @relation(fields: [vehicleId], references: [id])
-  vehicleId Int
-  slot      ParkingSlot?      @relation(fields: [slotId], references: [id])
-  slotId    Int?
-  lot       ParkingLot?        @relation(fields: [lotId], references: [id])
-  lotId     Int?
-  user      User              @relation(fields: [userId], references: [id])
-  userId    String
-  ticket    Ticket?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-}
-
-model Ticket {
-  id            Int         @id @default(autoincrement())
-  issueTime     DateTime    @default(now())
-  returnTime    DateTime?
-  fee           Float?
-  status        String      @default("ACTIVE")
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-  reservationId Int         @unique
-  issuedBy      User        @relation(fields: [clerkId], references: [id])
-  clerkId       String
 }

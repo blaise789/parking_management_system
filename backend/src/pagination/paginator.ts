@@ -3,9 +3,7 @@ type PaginateOptions = { page: number, limit: number, total: number }
 export const paginator = ({ page, limit, total }: PaginateOptions) => {
 
     const lastPage = Math.ceil(total / limit);
-    // number of pages equal total items divide by limit
-
-
+    // number of pages equal total items divide by limit    
     return {
         total,
         lastPage,

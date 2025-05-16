@@ -9,11 +9,11 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MailModule } from './mail/mail.module';
-import { ParkingLotsModule } from './modules/parking-lots/parking-lots.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import appConfig from './config/app.config';
 import { ReservationsModule } from './modules/reservations/reservations.module';
+import { ParkingSlotsModule } from './modules/parking-slots/parking-slots.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -30,7 +30,7 @@ signOptions:{expiresIn:appConfig().jwt.expiresIn}
   )
   ,
   
-  AuthModule, FileModule, AdminModule, UserModule , MailModule,PrismaModule, ParkingLotsModule, ReservationsModule, VehiclesModule, TicketsModule],
+  AuthModule, FileModule, AdminModule, UserModule , MailModule,PrismaModule, ParkingSlotsModule, ReservationsModule, VehiclesModule, TicketsModule],
 
   controllers: [],
   providers: [],
