@@ -7,8 +7,14 @@ import {
 } from "lucide-react";
 import React from "react";
 import NavItem from "./NavItem";
+import { useDispatch } from "react-redux";
+import { logout } from "@/redux/slices/UserSlice";
 
 const SideBar: React.FC = () => {
+  const dispatch=useDispatch()
+  const handleLogout=()=>{
+    dispatch(logout())
+  }
   return (
     <div className="hidden md:flex md:w-64 bg-blue-800 flex-col h-screen sticky top-0">
       {/* Logo */}
@@ -36,10 +42,13 @@ const SideBar: React.FC = () => {
       </nav>
 
       {/* Bottom navigation */}
-      <div className="px-4 pb-6 space-y-1">
+      <div className="px-4 pb-6 space-y-1" onClick={handleLogout}>
         <NavItem
           icon={<LogOut size={16} className="text-blue-200" />}
           label="LogOut"
+
+        
+          
         />
       </div>
     </div>

@@ -51,8 +51,8 @@ export const getParkingSlots = async ({
     
   
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      return window.location.replace("/auth/login");
+    if (error.response?.status==403) {
+      return window.location.replace("/login");
     }
 
     // error?.response?.data?.message

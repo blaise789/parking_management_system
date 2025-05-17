@@ -14,33 +14,25 @@ export class ReservationsService {
 
   async create(userId: string, createReservationDto: CreateReservationDto) {
     // check if vehicle exists
-    const { vehicleId, lotId, startTime, endTime } = createReservationDto;
-    // console.log(lotId);
+    const { vehicleId, slotId, startTime, endTime } = createReservationDto;
+    
 
     const vehicle = await this.prisma.vehicle.findUnique({
       where: {
         id: vehicleId,
         userId,
+        
       },
     });
     if (!vehicle)
       throw new ForbiddenException(
         'your are not allowed to register this vehicle ',
       );
-    const availableSlots = await this.findAvailableSlots(
-      lotId,
-      new Date(startTime),
-      new Date(endTime),
-    );
-    if (availableSlots.length == 0) {
-      throw new BadRequestException('No available slots for this lot');
-    }
-
+   
     return this.prisma.reservation.create({
       data: {
 
         status: 'PENDING',
-  
         user: {
           connect: {
             id: userId,

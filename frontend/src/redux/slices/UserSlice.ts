@@ -26,15 +26,14 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         login: (state,{payload}) => {
+
             state.isLoggedIn=true,
-            // state.user = {...payload.user};
-            console.log(payload)
-
-
+            state.user = {...payload};
             localStorage.setItem('token', payload.token);
         },
         logout: (state) => {
             state.token = "";
+            state.isLoggedIn=false
             state.user = {
                 id: 0,
                 name: "",
@@ -42,6 +41,8 @@ const authSlice = createSlice({
                 role: ""
             };
             localStorage.removeItem('token');
+            window.location.replace("/login")
+
         },
     },
 });

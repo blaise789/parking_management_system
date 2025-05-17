@@ -15,7 +15,7 @@ try{
     console.log(email,password)
     const response=await api.post(url,{email,password})
     console.log(response)
-    dispatch(login({...response.data}))
+    dispatch(login({...response.data.data}))
     toast.success("login successful")
     localStorage.setItem("token",response.data.data.token)
     setTimeout(() => {

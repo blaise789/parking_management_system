@@ -1,8 +1,10 @@
 import { Bell, Search} from "lucide-react";
-import React from "react";
 import Prof from "@/assets/prof.jpg";
+interface HeaderProps{
+  name:string 
+}
 
-const Header: React.FC = () => {
+const Header = ({name}:HeaderProps) => {
   return (
     <div className="bg-white p-3 sm:p-4 md:p-6 flex justify-between items-center  border-b sticky top-0 z-10">
       <div></div>
@@ -34,7 +36,7 @@ const Header: React.FC = () => {
         <div className="flex items-center">
           {/* Name (hidden on small screens) */}
           <span className="hidden sm:block text-sm md:text-base mr-2">
-            Jacques Kagabo
+            {name}
           </span>
 
           {/* Profile picture - smaller on mobile */}

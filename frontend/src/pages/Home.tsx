@@ -5,6 +5,12 @@ import { CommonContext } from "@/context/CommonContext";
 import { getParkingSlots } from "@/services/parking";
 import { IParkingSlot } from "@/types";
 import { FiSearch, FiPlus } from "react-icons/fi";
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+
+// Import only necessary PrimeReact styles
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -12,32 +18,64 @@ const Home: React.FC = () => {
   const [limit, setLimit] = useState<number>(5);
   const [searchKey, setSearchKey] = useState<string>("");
   const { user, parkingSlots, setParkingSlots, setMeta, meta } = useContext(CommonContext);
-  console.log(parkingSlots)
-  useEffect(() => {
   
-   getParkingSlots({ page, limit, setLoading, setMeta, setParkingSlots, searchKey });
+  useEffect(() => {
+
+    getParkingSlots({ page, limit, setLoading, setMeta, setParkingSlots, searchKey });
   }, [page, limit, searchKey]);
-  console.log(parkingSlots)
+  console.log(meta)
+
+  const statusBodyTemplate = (rowData: IParkingSlot) => {
+    return (
+      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+        rowData.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+      }`}>
+        {rowData.status}
+      </span>
+    );
+  };
+
+  const actionBodyTemplate = () => {
+    return (
+      <div className="flex space-x-2">
+        <button className="text-blue-600 hover:text-blue-900 mr-3">
+          Edit
+        </button>
+        <button className="text-red-600 hover:text-red-900">
+          Delete
+        </button>
+      </div>
+    );
+  };
+
+  const handlePageChange = (e: { 
+    page?: number; 
+    rows?: number;
+    first?: number;
+    pageCount?: number;
+  }) => {
+    const newPage = (e.page ?? 0) + 1;
+    const newLimit = e.rows ?? limit;
+    setPage(newPage);
+    setLimit(newLimit);
+  };
+
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar container */}
       <div className="hidden md:block md:w-64 flex-shrink-0">
         <SideBar />
       </div>
 
-      {/* Main content container */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <Header />
+        <Header  name={user.firstName}/>
 
-        {/* Main content area */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h2 className="text-xl font-semibold text-gray-800">
-                  Parking Slots Management
+                  Parking Slots
                 </h2>
                 
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -70,67 +108,64 @@ const Home: React.FC = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          SLOT NUMBER
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          VEHICLE TYPE
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          SIZE
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          LOCATION
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          STATUS
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ACTIONS
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {parkingSlots?.length > 0 ? (
-                        parkingSlots.map((slot: IParkingSlot, index: number) => (
-                          <tr key={index}>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="font-semibold">{slot.slotNumber}</span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {slot.vehicleType}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {slot.size}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {slot.location}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${slot.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                {slot.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button className="text-green-600 hover:text-green-900">
-                                ✔️
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                            No parking slots found
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                <div className="overflow-hidden rounded-lg border border-gray-200">
+                  <DataTable
+                    value={parkingSlots}
+                    paginator
+                    rows={limit}
+                    totalRecords={meta?.total}
+                    lazy
+                    first={(page - 1) * limit} 
+                    onPage={handlePageChange}
+                    loading={loading}
+                    emptyMessage="No parking slots found"
+                    className="border-none"
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+                    rowsPerPageOptions={[5, 10, 20, 50]}
+                  >
+                    <Column 
+                      field="slotNumber" 
+                      header="SLOT NUMBER" 
+                      headerClassName="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3"
+                      bodyClassName="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                      sortable 
+                    />
+                    <Column 
+                      field="vehicleType" 
+                      header="VEHICLE TYPE"
+                      headerClassName="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3"
+                      bodyClassName="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                      sortable 
+                    />
+                    <Column 
+                      field="size" 
+                      header="SIZE"
+                      headerClassName="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3"
+                      bodyClassName="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                      sortable 
+                    />
+                    <Column 
+                      field="location" 
+                      header="LOCATION"
+                      headerClassName="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3"
+                      bodyClassName="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                      sortable 
+                    />
+                    <Column 
+                      field="status" 
+                      header="STATUS"
+                      headerClassName="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3"
+                      body={statusBodyTemplate}
+                      sortable 
+                    />
+                    <Column 
+                      header="ACTIONS"
+                      headerClassName="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3"
+                      bodyClassName="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                      body={actionBodyTemplate}
+                    />
+                  </DataTable>
                 </div>
               )}
             </div>

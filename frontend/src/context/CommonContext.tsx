@@ -18,6 +18,7 @@ export const CommonProvider = ({ children }: any) => {
     const userSlice = useSelector((state: any) => state.authReducer)
     const dispatch: Dispatch = useDispatch();
     // console.log(userSlice)
+    console.log(userSlice.user)
     const isLoggedIn: boolean = userSlice.isLoggedIn;
     console.log(isLoggedIn)
     return (
