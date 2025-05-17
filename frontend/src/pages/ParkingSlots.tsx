@@ -22,7 +22,7 @@ import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import { BulkCreateParkingSlotModal } from "@/components/BulkCreateModal";
 
-const Home: React.FC = () => {
+const ParkingSlots: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(5);
@@ -302,4 +302,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default ParkingSlots;
