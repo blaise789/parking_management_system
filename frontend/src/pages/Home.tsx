@@ -7,6 +7,7 @@ import {
   createParkingSlot,
   updateParkingSlot,
   deleteParkingSlot,
+  bulkCreateParkingSlots,
 } from "@/services/parking";
 import { IParkingSlot, ParkingSlotInputs } from "@/types";
 import { FiSearch, FiPlus } from "react-icons/fi";
@@ -14,10 +15,12 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { ParkingSlotModal } from "@/components/ParkingSlotModal";
 import { toast } from "react-hot-toast";
+import { BulkCreateParkingSlotDto } from "@/types";
 
 // Import only necessary PrimeReact styles
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
+import { BulkCreateParkingSlotModal } from "@/components/BulkCreateModal";
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -26,6 +29,31 @@ const Home: React.FC = () => {
   const [searchKey, setSearchKey] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedSlot, setSelectedSlot] = useState<IParkingSlot | null>(null);
+  // Add this state with your other useState declarations
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState<boolean>(false);
+  // Add this handler function with your other handlers
+  const handleBulkCreate = async (data: BulkCreateParkingSlotDto) => {
+    try {
+      setLoading(true);
+      const response = await bulkCreateParkingSlots({
+        ...data,
+        setLoading,
+      });
+
+      if (response) {
+        toast.success(`Successfully created ${data.count} parking slots`);
+        fetchParkingSlots();
+      } else {
+        toast.error("Failed to create parking slots");
+      }
+    } catch (error) {
+      toast.error("Failed to bulk create parking slots");
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+      setIsBulkModalOpen(false);
+    }
+  };
 
   const { user, parkingSlots, setParkingSlots, setMeta, meta } =
     useContext(CommonContext);
@@ -161,7 +189,7 @@ const Home: React.FC = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <button className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    <button className="flex items-center gap-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" onClick={()=>setIsBulkModalOpen(!isBulkModalOpen)}>
                       <FiPlus /> Bulk Create
                     </button>
                     <button
@@ -264,6 +292,11 @@ const Home: React.FC = () => {
             : null
         }
         onSubmit={handleSubmit}
+      />
+      <BulkCreateParkingSlotModal
+        open={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        onSubmit={handleBulkCreate}
       />
     </div>
   );

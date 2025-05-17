@@ -1,41 +1,51 @@
+// parking-lots/dto/bulk-create-parking-slot.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsArray, IsNumber, IsOptional, ValidateNested } from 'class-validator';
-import { CreateParkingSlotDto } from './create-parking-slot.dto';
+import { ParkingLocation, SlotStatus, VehicleSize, VehicleType } from '@prisma/client';
+import { IsEnum, IsInt, IsOptional, Min, Max } from 'class-validator';
 
 export class BulkCreateParkingSlotDto {
   @ApiProperty({
-    description: 'Array of parking slots to create',
-    type: [CreateParkingSlotDto],
-    example: [
-      {
-        slotNumber: 'A-101',
-        size: 'MEDIUM',
-        vehicleType: 'CAR',
-        location: 'NORTH'
-      },
-      {
-        slotNumber: 'A-102',
-        size: 'LARGE',
-        vehicleType: 'TRUCK',
-        location: 'SOUTH'
-      }
-    ],
+    description: 'Number of slots to create',
+    example: 10,
+    minimum: 1,
+    maximum: 100
   })
-  @IsArray()
-  @ValidateNested({ each: true })
-  
-  @Type(() => CreateParkingSlotDto)
-  @IsOptional()
-  slots?: CreateParkingSlotDto[];
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  count: number;
 
   @ApiProperty({
-    description: 'Number of slots to create (for bulk generation)',
-    example: 100,
-    minimum: 1,
-    maximum: 1000,
+    description: 'Type of vehicle for all slots',
+    enum: VehicleType,
+    example: VehicleType.CAR
   })
-  @IsNumber()
+  @IsEnum(VehicleType)
+  vehicleType: VehicleType;
+
+  @ApiProperty({
+    description: 'Size for all slots',
+    enum: VehicleSize,
+    example: VehicleSize.MEDIUM
+  })
+  @IsEnum(VehicleSize)
+  size: VehicleSize;
+
+  @ApiProperty({
+    description: 'Location for all slots',
+    enum: ParkingLocation,
+    example: ParkingLocation.NORTH
+  })
+  @IsEnum(ParkingLocation)
+  location: ParkingLocation;
+
+  @ApiProperty({
+    description: 'Initial status for all slots',
+    enum: SlotStatus,
+    example: SlotStatus.AVAILABLE,
+    required: false
+  })
+  @IsEnum(SlotStatus)
   @IsOptional()
-  count?: number;
+  status?: SlotStatus = SlotStatus.AVAILABLE;
 }

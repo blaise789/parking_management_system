@@ -59,8 +59,13 @@ export interface ApiResponse<T> {
 
 
 // For bulk operations
-export interface BulkCreateParkingSlotDto {
-  slots?: ParkingSlotInputs[];
-  count?: number;
-}
 
+
+// types.ts
+export interface BulkCreateParkingSlotDto {
+  count: number;
+  vehicleType: VehicleType;
+  size: VehicleSize;
+  location: ParkingLocation;
+  status?: SlotStatus;
+}

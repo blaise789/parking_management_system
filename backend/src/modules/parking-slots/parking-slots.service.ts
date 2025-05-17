@@ -3,6 +3,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { CreateParkingSlotDto } from './dtos/create-parking-slot.dto';
 import {
   ParkingLocation,
+  ParkingSlot,
   Prisma,
   SlotStatus,
   VehicleSize,
@@ -10,6 +11,7 @@ import {
 } from '@prisma/client';
 import { paginator } from 'src/pagination/paginator';
 import { UpdateParkingSlotDto } from './dtos/update-parking-lot.dto';
+import { BulkCreateParkingSlotDto } from './dtos/builk-create-slots.dto';
 
 @Injectable()
 export class ParkingSlotsService {
@@ -70,46 +72,53 @@ export class ParkingSlotsService {
     }
   }
 
-  async createMany(
-    slots: CreateParkingSlotDto[],
-  ): Promise<CreateParkingSlotDto[]> {
-    try {
-      const createdSlots = await this.prisma.parkingSlot.createMany({
-        data: slots,
-        skipDuplicates: true,
-      });
+  // parking-lots/parking-slots.service.ts
+async bulkCreateSlots(bulkDto: BulkCreateParkingSlotDto): Promise<ParkingSlot[]> {
+  const { count, vehicleType, size, location, status } = bulkDto;
+  const generatedSlots: CreateParkingSlotDto[] = [];
 
-      return this.prisma.parkingSlot.findMany({
-        where: {
-          slotNumber: {
-            in: slots.map((slot) => slot.slotNumber),
-          },
-        },
-      });
-    } catch (error) {
-      console.error('Create error:', error);
-      throw new HttpException(
-        `Failed to create parking slots: ${error.message}`,
-        500,
-      );
-    }
+  // Generate sequential slot numbers
+  const existingSlots = await this.prisma.parkingSlot.findMany({
+    select: { slotNumber: true },
+    orderBy: { slotNumber: 'desc' },
+    take: 1
+  });
+
+  const lastNumber = existingSlots[0]?.slotNumber 
+    ? parseInt(existingSlots[0].slotNumber.replace('S', '')) 
+    : 0;
+
+  for (let i = 1; i <= count; i++) {
+    const slotNumber = `S${(lastNumber + i).toString().padStart(3, '0')}`;
+    generatedSlots.push({
+      slotNumber,
+      vehicleType,
+      size,
+      location,
+      status
+    });
   }
 
-  async generateSlots(count: number): Promise<CreateParkingSlotDto[]> {
-    const generatedSlots: CreateParkingSlotDto[] = [];
+  try {
+    await this.prisma.parkingSlot.createMany({
+      data: generatedSlots,
+      skipDuplicates: true
+    });
 
-    for (let i = 1; i <= count; i++) {
-      generatedSlots.push({
-        slotNumber: `GEN-${i.toString().padStart(4, '0')}`,
-        size: this.getRandomEnumValue(VehicleSize),
-        vehicleType: this.getRandomEnumValue(VehicleType),
-        location: this.getRandomEnumValue(ParkingLocation),
-        status:this.getRandomEnumValue(SlotStatus)
-      });
-    }
-
-    return this.createMany(generatedSlots);
+    return this.prisma.parkingSlot.findMany({
+      where: {
+        slotNumber: {
+          in: generatedSlots.map(slot => slot.slotNumber)
+        }
+      }
+    });
+  } catch (error) {
+    throw new HttpException(
+      `Failed to bulk create slots: ${error.message}`,
+      500
+    );
   }
+}
 // generating random slots
   private getRandomEnumValue<T>(enumObj: T): T[keyof T] {
     const enumValues = Object.values(enumObj);
@@ -169,7 +178,7 @@ export class ParkingSlotsService {
 
   // Implemented createParkingSlot method
   async createParkingSlot(dto: CreateParkingSlotDto) {
-    try {
+    
       console.log(dto)
       // Check if slot number already exists
       const existingSlot = await this.prisma.parkingSlot.findFirst({
@@ -177,7 +186,7 @@ export class ParkingSlotsService {
       });
 
       if (existingSlot) {
-        throw new HttpException('Slot number already exists', 400);
+        throw new  HttpException('Slot number already exists', 400);
       }
 
       const createdSlot = await this.prisma.parkingSlot.create({
@@ -185,13 +194,8 @@ export class ParkingSlotsService {
       });
 
       return createdSlot;
-    } catch (error) {
-      console.error('Create error:', error);
-      throw new HttpException(
-        `Failed to create parking slot: ${error.message}`,
-        500,
-      );
-    }
+    
+      
   }
 
   // Implemented findById method

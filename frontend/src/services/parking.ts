@@ -1,5 +1,10 @@
 import api from "@/api";
-import { IParkingSlot, IMeta, ParkingSlotInputs } from "@/types";
+import {
+  IParkingSlot,
+  IMeta,
+  ParkingSlotInputs,
+  BulkCreateParkingSlotDto,
+} from "@/types";
 import React from "react";
 import toast from "react-hot-toast";
 
@@ -45,13 +50,11 @@ export const getParkingSlots = async ({
     if (searchKey) url += `&searchKey=${encodeURIComponent(searchKey)}`;
 
     const response = await api.get(url);
-    console.log(response.data.data.parkingSlots)
+    console.log(response.data.data.parkingSlots);
     setParkingSlots(response.data.data.parkingSlots); // Assuming backend returns { slots, meta }
     setMeta(response.data.data.meta);
-    
-  
   } catch (error: any) {
-    if (error.response?.status==403) {
+    if (error.response?.status == 403) {
       return window.location.replace("/login");
     }
 
@@ -62,8 +65,6 @@ export const getParkingSlots = async ({
     setLoading(false);
   }
 };
-
-
 
 // Create a parking slot
 export const createParkingSlot = async ({
@@ -77,7 +78,7 @@ export const createParkingSlot = async ({
     setLoading(true);
     const url = "/parking-slots/create";
 
-    console.log(slotData)
+    console.log(slotData);
     const response = await api.post(url, slotData);
     toast.success("Slot created successfully");
     return response.data;
@@ -98,13 +99,13 @@ export const updateParkingSlot = async ({
   setLoading,
 }: {
   id: string;
-  slotData:ParkingSlotInputs;
+  slotData: ParkingSlotInputs;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   try {
     setLoading(true);
     const url = `/parking-slots/update/${id}`;
-    console.log(slotData)
+    console.log(slotData);
     const response = await api.put(url, slotData);
     toast.success("Slot updated successfully");
     return response.data;
@@ -136,6 +137,47 @@ export const deleteParkingSlot = async ({
     error?.response?.data?.message
       ? toast.error(error.response.data.message)
       : toast.error("Error deleting slot");
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+export const bulkCreateParkingSlots = async ({
+  count,
+  vehicleType,
+  size,
+  location,
+  status = "AVAILABLE",
+  setLoading,
+}: BulkCreateParkingSlotDto & {
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}): Promise<IParkingSlot[]> => {
+  try {
+    setLoading(true);
+
+    const url = "/parking-slots/bulk";
+    const requestData = {
+      count,
+      vehicleType,
+      size,
+      location,
+      status,
+    };
+    console.log(requestData);
+    const response = await api.post(url, {
+      count,
+      vehicleType,
+      size,
+      location,
+      status,
+    });
+
+    toast.success(`Successfully created ${count} parking slots`);
+    return response.data;
+  } catch (error: any) {
+    error?.response?.data?.message
+      ? toast.error(error.response.data.message)
+      : toast.error("Error creating parking slots");
     throw error;
   } finally {
     setLoading(false);

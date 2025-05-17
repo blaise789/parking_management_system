@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Response } from 'express';
+import { Server } from 'http';
 import ServerResponse from 'src/utils/ServerResponse';
 
 @Catch(HttpException)
@@ -29,6 +30,9 @@ export class AppExceptionFilter implements ExceptionFilter {
     }
     else if (status === 403) {
         response.status(status).json(ServerResponse.error("Forbidden", exception.getResponse()));
+    }
+    else if (status ===500){
+        response.status(status).json(ServerResponse.error("internal server error",exception.getResponse()))
     }
     else {
         response.status(status).json(ServerResponse.error("Error occured", exception));
