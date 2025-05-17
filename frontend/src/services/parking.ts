@@ -1,5 +1,5 @@
 import api from "@/api";
-import { IParkingSlot, IMeta } from "@/types";
+import { IParkingSlot, IMeta, ParkingSlotInputs } from "@/types";
 import React from "react";
 import toast from "react-hot-toast";
 
@@ -58,6 +58,85 @@ export const getParkingSlots = async ({
     // error?.response?.data?.message
     //   ? toast.error(error.response.data.message)
     //   : toast.error("Error fetching parking slots");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+// Create a parking slot
+export const createParkingSlot = async ({
+  slotData,
+  setLoading,
+}: {
+  slotData: ParkingSlotInputs;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  try {
+    setLoading(true);
+    const url = "/parking-slots/create";
+
+    console.log(slotData)
+    const response = await api.post(url, slotData);
+    toast.success("Slot created successfully");
+    return response.data;
+  } catch (error: any) {
+    error?.response?.data?.message
+      ? toast.error(error.response.data.message)
+      : toast.error("Error creating slot");
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Update a parking slot
+export const updateParkingSlot = async ({
+  id,
+  slotData,
+  setLoading,
+}: {
+  id: string;
+  slotData:ParkingSlotInputs;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  try {
+    setLoading(true);
+    const url = `/parking-slots/update/${id}`;
+    console.log(slotData)
+    const response = await api.put(url, slotData);
+    toast.success("Slot updated successfully");
+    return response.data;
+  } catch (error: any) {
+    error?.response?.data?.message
+      ? toast.error(error.response.data.message)
+      : toast.error("Error updating slot");
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Delete a parking slot
+export const deleteParkingSlot = async ({
+  id,
+  setLoading,
+}: {
+  id: string;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  try {
+    setLoading(true);
+    const url = `/parking-slots/${id}`;
+    const response = await api.delete(url);
+    toast.success("Slot deleted successfully");
+    return response.data;
+  } catch (error: any) {
+    error?.response?.data?.message
+      ? toast.error(error.response.data.message)
+      : toast.error("Error deleting slot");
+    throw error;
   } finally {
     setLoading(false);
   }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsNumber, ValidateNested } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, ValidateNested } from 'class-validator';
 import { CreateParkingSlotDto } from './create-parking-slot.dto';
 
 export class BulkCreateParkingSlotDto {
@@ -24,8 +24,10 @@ export class BulkCreateParkingSlotDto {
   })
   @IsArray()
   @ValidateNested({ each: true })
+  
   @Type(() => CreateParkingSlotDto)
-  slots: CreateParkingSlotDto[];
+  @IsOptional()
+  slots?: CreateParkingSlotDto[];
 
   @ApiProperty({
     description: 'Number of slots to create (for bulk generation)',
@@ -34,5 +36,6 @@ export class BulkCreateParkingSlotDto {
     maximum: 1000,
   })
   @IsNumber()
-  count: number;
+  @IsOptional()
+  count?: number;
 }

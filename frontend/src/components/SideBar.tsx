@@ -4,6 +4,7 @@ import {
   Users,
   CalendarClock,
   LogOut,
+  Home,
 } from "lucide-react";
 import React from "react";
 import NavItem from "./NavItem";
@@ -26,9 +27,9 @@ const SideBar: React.FC = () => {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 space-y-1">
-        {/* <NavItem icon={<Home size={20} className="text-blue-200" />} label="Dashboard" active={true} /> */}
+        <NavItem icon={<Home size={20} className="text-blue-200" />} label="Dashboard" active={true} />
         <NavItem
-          icon={<ParkingSquare size={20} className="text-blue-200" />}
+          icon={<ParkingSquare size={20} className="text-blue-200"  />}
           label="Parking Slots"
         />
         <NavItem
