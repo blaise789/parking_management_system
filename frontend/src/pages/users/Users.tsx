@@ -1,9 +1,8 @@
-// pages/Drivers.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import Header from '@/components/Header';
-import SideBar from '@/components/SideBar';
+import Header from '@/components/shared/Header';
+import SideBar from '@/components/shared/SideBar';
 import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import { 
@@ -19,106 +18,121 @@ import {
   InputLabel
 } from '@mui/material';
 import { CommonContext } from '@/context/CommonContext';
-// import { getDrivers, createDriver, updateDriver, deleteDriver } from '@/services/drivers';
+// import { getUsers, createUser, updateUser, deleteUser } from '@/services/users';
 
 // Import PrimeReact styles
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 
-interface Driver {
+interface User {
   id: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  phone: string;
-  licenseNumber: string;
-  vehicleType: string;
-  status: 'Active' | 'Inactive' | 'Suspended';
+  password?: string;
+  role: 'user' | 'admin';
+  status: 'active' | 'inactive';
 }
 
-const Drivers: React.FC = () => {
+const Users: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(5);
   const [searchKey, setSearchKey] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [meta, setMeta] = useState<any>(null);
   
   const { user } = useContext(CommonContext);
 
   useEffect(() => {
-    fetchDrivers();
+    fetchUsers();
   }, [page, limit, searchKey]);
 
-  const fetchDrivers = async () => {
+  const fetchUsers = async () => {
     try {
       setLoading(true);
-    //   const response = await getDrivers({ page, limit, searchKey });
-    //   setDrivers(response.data);
-    //   setMeta(response.meta);
+      // const response = await getUsers({ page, limit, searchKey });
+      // setUsers(response.data);
+      // setMeta(response.meta);
+      
+      // Mock data for demonstration
+      const mockUsers: User[] = [
+        { id: '1', name: 'John Doe', email: 'john@example.com', role: 'user', status: 'active' },
+        { id: '2', name: 'Admin User', email: 'admin@example.com', role: 'admin', status: 'active' },
+        { id: '3', name: 'Jane Smith', email: 'jane@example.com', role: 'user', status: 'inactive' },
+      ];
+      setUsers(mockUsers);
+      setMeta({ total: mockUsers.length, page, limit });
     } catch (error) {
-      toast.error('Failed to fetch drivers');
+      toast.error('Failed to fetch users');
       console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (driverData: Omit<Driver, 'id'>) => {
+  const handleSubmit = async (userData: Omit<User, 'id'>) => {
     try {
       setLoading(true);
-      if (selectedDriver) {
-        // await updateDriver(selectedDriver.id, driverData);
-        toast.success('Driver updated successfully');
+      if (selectedUser) {
+        // await updateUser(selectedUser.id, userData);
+        toast.success('User updated successfully');
       } else {
-        // await createDriver(driverData);
-        toast.success('Driver created successfully');
+        // await createUser(userData);
+        toast.success('User created successfully');
       }
       setIsModalOpen(false);
-      fetchDrivers();
+      fetchUsers();
     } catch (error) {
-      toast.error(`Failed to ${selectedDriver ? 'update' : 'create'} driver`);
+      toast.error(`Failed to ${selectedUser ? 'update' : 'create'} user`);
       console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteDriver = async (driver: Driver) => {
+  const handleDeleteUser = async (user: User) => {
     try {
       setLoading(true);
-    //   await deleteDriver(driver.id);
-      toast.success('Driver deleted successfully');
-      fetchDrivers();
+      // await deleteUser(user.id);
+      toast.success('User deleted successfully');
+      fetchUsers();
     } catch (error) {
-      toast.error('Failed to delete driver');
+      toast.error('Failed to delete user');
       console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const statusBodyTemplate = (rowData: Driver) => {
+  const statusBodyTemplate = (rowData: User) => {
     return (
       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-        rowData.status === 'Active' ? 'bg-green-100 text-green-800' :
-        rowData.status === 'Inactive' ? 'bg-yellow-100 text-yellow-800' :
-        'bg-red-100 text-red-800'
+        rowData.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
       }`}>
-        {rowData.status}
+        {rowData.status.charAt(0).toUpperCase() + rowData.status.slice(1)}
       </span>
     );
   };
 
-  const actionBodyTemplate = (rowData: Driver) => {
+  const roleBodyTemplate = (rowData: User) => {
+    return (
+      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+        rowData.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+      }`}>
+        {rowData.role.charAt(0).toUpperCase() + rowData.role.slice(1)}
+      </span>
+    );
+  };
+
+  const actionBodyTemplate = (rowData: User) => {
     return (
       <div className="flex space-x-2">
         <button
           className="text-blue-600 hover:text-blue-900 mr-3"
           onClick={() => {
-            setSelectedDriver(rowData);
+            setSelectedUser(rowData);
             setIsModalOpen(true);
           }}
         >
@@ -126,7 +140,7 @@ const Drivers: React.FC = () => {
         </button>
         <button
           className="text-red-600 hover:text-red-900"
-          onClick={() => handleDeleteDriver(rowData)}
+          onClick={() => handleDeleteUser(rowData)}
         >
           <FiTrash2 className="inline mr-1" /> Delete
         </button>
@@ -160,7 +174,7 @@ const Drivers: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h2 className="text-xl font-semibold text-gray-800">
-                  Drivers Management
+                  Users Management
                 </h2>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -171,7 +185,7 @@ const Drivers: React.FC = () => {
                     <input
                       type="text"
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Search drivers..."
+                      placeholder="Search users..."
                       value={searchKey}
                       onChange={(e) => setSearchKey(e.target.value)}
                     />
@@ -180,11 +194,11 @@ const Drivers: React.FC = () => {
                   <button
                     className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     onClick={() => {
-                      setSelectedDriver(null);
+                      setSelectedUser(null);
                       setIsModalOpen(true);
                     }}
                   >
-                    <FiPlus /> Add Driver
+                    <FiPlus /> Add User
                   </button>
                 </div>
               </div>
@@ -196,7 +210,7 @@ const Drivers: React.FC = () => {
               ) : (
                 <div className="overflow-hidden rounded-lg border border-gray-200">
                   <DataTable
-                    value={drivers}
+                    value={users}
                     paginator
                     rows={limit}
                     totalRecords={meta?.total}
@@ -204,14 +218,18 @@ const Drivers: React.FC = () => {
                     first={(page - 1) * limit}
                     onPage={handlePageChange}
                     loading={loading}
-                    emptyMessage="No drivers found"
+                    emptyMessage="No users found"
                     className="border-none"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                     rowsPerPageOptions={[5, 10, 20, 50]}
                     paginatorClassName="px-6 py-3 border-t border-gray-200 bg-gray-50 rounded-b-lg"
                   >
-                    {/* Columns remain the same as previous example */}
+                    <Column field="name" header="Name" sortable />
+                    <Column field="email" header="Email" sortable />
+                    <Column field="role" header="Role" body={roleBodyTemplate} sortable />
+                    <Column field="status" header="Status" body={statusBodyTemplate} sortable />
+                    <Column header="Actions" body={actionBodyTemplate} />
                   </DataTable>
                 </div>
               )}
@@ -223,90 +241,73 @@ const Drivers: React.FC = () => {
       {/* Material-UI Dialog */}
       <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle className="bg-gray-50 p-4 border-b">
-          {selectedDriver ? 'Edit Driver' : 'Add New Driver'}
+          {selectedUser ? 'Edit User' : 'Add New User'}
         </DialogTitle>
         <DialogContent className="p-4 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <TextField
-              label="First Name"
-              variant="outlined"
-              fullWidth
-              value={selectedDriver?.firstName || ''}
-              onChange={(e) => setSelectedDriver({
-                ...(selectedDriver || {} as Driver),
-                firstName: e.target.value
-              })}
-            />
-            <TextField
-              label="Last Name"
-              variant="outlined"
-              fullWidth
-              value={selectedDriver?.lastName || ''}
-              onChange={(e) => setSelectedDriver({
-                ...(selectedDriver || {} as Driver),
-                lastName: e.target.value
-              })}
-            />
-          </div>
+          <TextField
+            label="Full Name"
+            variant="outlined"
+            fullWidth
+            value={selectedUser?.name || ''}
+            onChange={(e) => setSelectedUser({
+              ...(selectedUser || {} as User),
+              name: e.target.value
+            })}
+          />
           
           <TextField
             label="Email"
             variant="outlined"
             fullWidth
             type="email"
-            value={selectedDriver?.email || ''}
-            onChange={(e) => setSelectedDriver({
-              ...(selectedDriver || {} as Driver),
+            value={selectedUser?.email || ''}
+            onChange={(e) => setSelectedUser({
+              ...(selectedUser || {} as User),
               email: e.target.value
             })}
           />
           
-          <TextField
-            label="Phone"
-            variant="outlined"
-            fullWidth
-            value={selectedDriver?.phone || ''}
-            onChange={(e) => setSelectedDriver({
-              ...(selectedDriver || {} as Driver),
-              phone: e.target.value
-            })}
-          />
+          {!selectedUser?.id && (
+            <TextField
+              label="Password"
+              variant="outlined"
+              fullWidth
+              type="password"
+              value={selectedUser?.password || ''}
+              onChange={(e) => setSelectedUser({
+                ...(selectedUser || {} as User),
+                password: e.target.value
+              })}
+            />
+          )}
           
-          <TextField
-            label="License Number"
-            variant="outlined"
-            fullWidth
-            value={selectedDriver?.licenseNumber || ''}
-            onChange={(e) => setSelectedDriver({
-              ...(selectedDriver || {} as Driver),
-              licenseNumber: e.target.value
-            })}
-          />
-          
-          <TextField
-            label="Vehicle Type"
-            variant="outlined"
-            fullWidth
-            value={selectedDriver?.vehicleType || ''}
-            onChange={(e) => setSelectedDriver({
-              ...(selectedDriver || {} as Driver),
-              vehicleType: e.target.value
-            })}
-          />
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Role</InputLabel>
+            <Select
+              value={selectedUser?.role || 'user'}
+              onChange={(e) => setSelectedUser({
+                ...(selectedUser || {} as User),
+                role: e.target.value as 'user' | 'admin'
+              })}
+              label="Role"
+            >
+              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </Select>
+          </FormControl>
           
           <FormControl fullWidth variant="outlined">
             <InputLabel>Status</InputLabel>
             <Select
-              value={selectedDriver?.status || 'Active'}
-              onChange={(e) => setSelectedDriver({
-                ...(selectedDriver || {} as Driver),
-                status: e.target.value as 'Active' | 'Inactive' | 'Suspended'
+              value={selectedUser?.status || 'active'}
+              onChange={(e) => setSelectedUser({
+                ...(selectedUser || {} as User),
+                status: e.target.value as 'active' | 'inactive'
               })}
               label="Status"
             >
-              <MenuItem value="Active">Active</MenuItem>
-              <MenuItem value="Inactive">Inactive</MenuItem>
-              <MenuItem value="Suspended">Suspended</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>
@@ -319,12 +320,12 @@ const Drivers: React.FC = () => {
             Cancel
           </Button>
           <Button 
-            onClick={() => selectedDriver && handleSubmit(selectedDriver)}
+            onClick={() => selectedUser && handleSubmit(selectedUser)}
             variant="contained"
             color="primary"
-            disabled={!selectedDriver}
+            disabled={!selectedUser?.name || !selectedUser?.email || (!selectedUser.id && !selectedUser.password)}
           >
-            {selectedDriver?.id ? 'Update' : 'Create'}
+            {selectedUser?.id ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -332,4 +333,4 @@ const Drivers: React.FC = () => {
   );
 };
 
-export default Drivers;
+export default Users;

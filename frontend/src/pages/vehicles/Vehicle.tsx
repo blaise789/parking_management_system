@@ -1,7 +1,7 @@
 // pages/Vehicles.tsx
 import React, { useState } from 'react';
-import Header from '@/components/Header';
-import SideBar from '@/components/SideBar';
+import Header from '@/components/shared/Header';
+import SideBar from '@/components/shared/SideBar';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { FiPlus, FiSearch } from 'react-icons/fi';

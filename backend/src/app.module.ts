@@ -14,6 +14,8 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import appConfig from './config/app.config';
 import { ReservationsModule } from './modules/reservations/reservations.module';
 import { ParkingSlotsModule } from './modules/parking-slots/parking-slots.module';
+import { ParkingSessionModule } from './modules/parking-session/parking-session.module';
+import { ParkingSessionController } from './services/parking-session/parking-session.controller';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -30,9 +32,9 @@ signOptions:{expiresIn:appConfig().jwt.expiresIn}
   )
   ,
   
-  AuthModule, FileModule, AdminModule, UserModule , MailModule,PrismaModule, ParkingSlotsModule, ReservationsModule, VehiclesModule, TicketsModule],
+  AuthModule, FileModule, AdminModule, UserModule , MailModule,PrismaModule, ParkingSlotsModule, ReservationsModule, VehiclesModule, TicketsModule, ParkingSessionModule],
 
-  controllers: [],
+  controllers: [ParkingSessionController],
   providers: [],
 })
 export class AppModule {}

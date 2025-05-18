@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import Header from "@/components/Header";
-import SideBar from "@/components/SideBar";
+import Header from "@/components/shared/Header";
+import SideBar from "@/components/shared/SideBar";
 import { CommonContext } from "@/context/CommonContext";
 import {
   getParkingSlots,
@@ -13,14 +13,14 @@ import { IParkingSlot, ParkingSlotInputs } from "@/types";
 import { FiSearch, FiPlus } from "react-icons/fi";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { ParkingSlotModal } from "@/components/ParkingSlotModal";
+import { ParkingSlotModal } from "@/components/modals/ParkingSlotModal";
 import { toast } from "react-hot-toast";
 import { BulkCreateParkingSlotDto } from "@/types";
 
 // Import only necessary PrimeReact styles
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
-import { BulkCreateParkingSlotModal } from "@/components/BulkCreateModal";
+import { BulkCreateParkingSlotModal } from "@/components/modals/BulkCreateModal";
 
 const ParkingSlots: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);

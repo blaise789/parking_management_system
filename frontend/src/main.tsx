@@ -8,17 +8,20 @@ import { store } from "./redux/store";
 import { ThemeProvider } from "@mui/material";
 import THEME from "./theme";
 import { MantineProvider } from "@mantine/core";
+import ErrorBoundary from "./pages/500/ErrorBoundary";
 // import App from './App.tsx'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {/* store container */}
-    <MantineProvider>
-      <ThemeProvider theme={THEME}>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </ThemeProvider>
-    </MantineProvider>
+    <ErrorBoundary>
+      <MantineProvider>
+        <ThemeProvider theme={THEME}>
+          <Provider store={store}>
+            <App />
+          </Provider>
+        </ThemeProvider>
+      </MantineProvider>
+    </ErrorBoundary>
   </StrictMode>
 );

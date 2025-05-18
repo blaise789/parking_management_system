@@ -6,8 +6,6 @@ interface  UserState  {
     user:User,
     token:string,
     isLoggedIn:boolean
-
-
 }
 
 

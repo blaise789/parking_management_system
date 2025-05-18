@@ -11,9 +11,12 @@ export class AdminService {
 
     async getStats() {
         const users = await this.prisma.user.count();
-        const files = await this.prisma.file.count();
+         const vehicles=await this.prisma.vehicle.count()
+         const reservations=await this.prisma.reservation.count()
+         const  parkingSlots=await this.prisma.parkingSlot.count()
+        // const files = await this.prisma.file.count();
         // const orders=await this.prisma.order.count()
-        return { users, files }
+        return { users,parkingSlots,reservations,vehicles  }
     }
 
     async createAdmin(dto: CreateUserDTO) {

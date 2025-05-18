@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import Header from '@/components/Header';
-import SideBar from '@/components/SideBar';
+import Header from '@/components/shared/Header';
+import SideBar from '@/components/shared/SideBar';
 import { FiSearch, FiPlus } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 

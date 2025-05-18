@@ -9,14 +9,6 @@ export type VehicleType = 'CAR' | 'MOTORCYCLE' | 'TRUCK';
 export type VehicleSize = 'SMALL' | 'MEDIUM' | 'LARGE';
 export type ParkingLocation = 'NORTH' | 'SOUTH' | 'EAST' | 'WEST';
 
-// export interface IParkingSlot {
-//   id:string
-//   slotNumber: string;
-//   vehicleType: string;
-//   size: string;
-//   location: string;
-//   status: SlotStatus;
-// }
 
 export interface IMeta {
   total: number;
@@ -68,4 +60,38 @@ export interface BulkCreateParkingSlotDto {
   size: VehicleSize;
   location: ParkingLocation;
   status?: SlotStatus;
+}
+// for vehicles
+interface Vehicle {
+  id: string;
+  userId: string;
+  plateNumber: string;
+  vehicleType: 'CAR' | 'MOTORCYCLE' | 'TRUCK';
+  size: 'SMALL' | 'MEDIUM' | 'LARGE';
+  color?: string;
+  model?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+interface SlotRequest {
+  id: string;
+  userId: string;
+  vehicleId: string;
+  slotId: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt: string;
+  vehicle: Vehicle;
+  slot?: ParkingSlot;
 }

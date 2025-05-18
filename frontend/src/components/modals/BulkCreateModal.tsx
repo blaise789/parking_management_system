@@ -1,7 +1,7 @@
 // components/parking/BulkCreateParkingSlotModal.tsx
 import { Modal, Box, Typography } from "@mui/material";
 import { BulkCreateParkingSlotDto} from "@/types";
-import { BulkCreateParkingSlotForm } from "./BulkCreateSlotForm";
+import { BulkCreateParkingSlotForm } from "../forms/BulkCreateSlotForm";
 
 const style = {
   position: "absolute" as const,

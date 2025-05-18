@@ -1,6 +1,6 @@
 // components/parking/ParkingSlotModal.tsx
 import { Modal, Box, Typography } from "@mui/material";
-import { ParkingSlotForm } from "./ParkingSlotForm";
+import { ParkingSlotForm } from "../forms/ParkingSlotForm";
 import { ParkingSlotInputs } from "@/types";
 
 const style = {

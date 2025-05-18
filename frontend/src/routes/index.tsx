@@ -3,13 +3,13 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../layout/Layout";
 import NotFound from "@/pages/404/Notfound";
 import { CommonContext } from "@/context/CommonContext";
-import Reservations from "@/pages/Reservations";
-import Dashboard from "@/pages/DashBoard";
-import Vehicles from "@/pages/Vehicle";
-import Drivers from "@/pages/Drivers";
-const Login=React.lazy(()=>import("@/pages/Login"))
-const SignUp=React.lazy(()=>import("@/pages/SignUp"))
-const ParkingSlots=React.lazy(() => import('../pages/ParkingSlots'))
+import Reservations from "@/pages/reservations/Reservations";
+import Dashboard from "@/pages/dashboard/DashBoard";
+import Vehicles from "@/pages/vehicles/Vehicle";
+import Users from "@/pages/users/Users";
+const Login=React.lazy(()=>import("@/pages/auth/Login"))
+const SignUp=React.lazy(()=>import("@/pages/auth/SignUp"))
+const ParkingSlots=React.lazy(() => import('../pages/parking-slots/ParkingSlots'))
 
 const PagesRouter: React.FC = () => {
 
@@ -25,7 +25,7 @@ const PagesRouter: React.FC = () => {
           <Route path="/vehicles" element={<Vehicles/>}/>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} /> 
-          <Route path="/drivers" element={<Drivers/>} />
+          <Route path="/users" element={<Users/>} />
         
           <Route path="*" element={<NotFound/>}/>
         </Routes>

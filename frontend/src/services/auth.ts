@@ -1,5 +1,5 @@
 import api from "@/api"
-import { login } from "@/redux/slices/UserSlice"
+import { login } from "@/redux/features/UserSlice"
  
 import toast from "react-hot-toast"
 export const signin=async({dispatch,setLoading,email,password}:{
