@@ -13,7 +13,7 @@ export class VehicleController {
   constructor(private vehicleService: VehiclesService) {}
 
   // register vehicle
-  @UseGuards(DriverGuard)
+  @UseGuards(AdminGuard)
   @Post()
   registerVehicle(
     @Req() req: AuthRequest,
@@ -24,10 +24,7 @@ export class VehicleController {
   }
   // 
   @Get("/search")
-  // search vehicle by plate
-
   searchVehicleByPlateNumber(
-
     @Query("plateno") plateNumber:string,
     @Query('page') page: number = 0,
     @Query('limit') limit: number = 10

@@ -6,3 +6,12 @@ export interface AuthRequest extends Request {
         id: string;
     }
 }
+
+// src/modules/vehicles/dtos/vehicle-attributes.interface.ts
+export interface VehicleAttributes {
+    make?: string;
+    model?: string;
+    color?: string;
+    year?: number;
+    [key: string]: any; // Allows for additional dynamic properties
+  }

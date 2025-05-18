@@ -7,9 +7,49 @@ import { initiatePasswordReset } from './templates/initiate-password-reset';
 import { passwordResetSuccessful } from './templates/password-reset-successful';
 import { emailVerified } from './templates/email-verified';
 import { ConfigService } from '@nestjs/config';
+import { $Enums } from '@prisma/client';
+import { JsonValue } from '@prisma/client/runtime/library';
+import { reservationApprovalTemplate } from './templates/reservation-approval.template';
+import { reservationRejectionTemplate } from './templates/reservation-rejected.email';
 
 @Injectable()
 export class MailService {
+    async sendReservationApproval(
+        email: string,
+        slotNumber: string,
+        vehicle: {
+          plateNumber: string;
+          vehicleType: $Enums.VehicleType;
+          size: $Enums.VehicleSize;
+        },
+        slotLocation: string,
+        expirationDate?: Date
+      ) {
+        try {
+          const mailOptions: nodemailer.SendMailOptions = {
+            to: email,
+            subject: 'Parking Reservation Approved',
+            html: reservationApprovalTemplate({
+              slotNumber,
+              plateNumber: vehicle.plateNumber,
+              vehicleType: vehicle.vehicleType,
+              vehicleSize: vehicle.size,
+              location: slotLocation,
+              expirationDate: expirationDate || null
+            })
+          };
+      
+          console.log(`[MAIL SERVICE]: Sending reservation approval to ${email}`);
+          await this.transporter.sendMail(mailOptions);
+          console.log(`[MAIL SERVICE]: Reservation approval sent to ${email}`);
+        } catch (error) {
+          console.error('[MAIL SERVICE ERROR]:', error);
+          throw new HttpException(
+            'Failed to send reservation approval email',
+            500
+          );
+        }
+      }
     private transporter: nodemailer.Transporter
     constructor(private configService: ConfigService) {
         console.log(this.configService.get("MAIL_HOST"))
@@ -109,4 +149,38 @@ export class MailService {
             throw new HttpException(error.message, 500)
         }
     }
+    async sendReservationRejection(
+        email: string,
+        vehicle: {
+          plateNumber: string;
+          vehicleType: $Enums.VehicleType;
+          size: $Enums.VehicleSize;
+        },
+        reason: string,
+        slotLocation?: string
+      ) {
+        try {
+          const mailOptions: nodemailer.SendMailOptions = {
+            to: email,
+            subject: 'Parking Reservation Rejected',
+            html: reservationRejectionTemplate({
+              plateNumber: vehicle.plateNumber,
+              vehicleType: vehicle.vehicleType,
+              vehicleSize: vehicle.size,
+              location: slotLocation,
+              reason
+            })
+          };
+      
+          console.log(`[MAIL SERVICE]: Sending reservation rejection to ${email}`);
+          await this.transporter.sendMail(mailOptions);
+          console.log(`[MAIL SERVICE]: Reservation rejection sent to ${email}`);
+        } catch (error) {
+          console.error('[MAIL SERVICE ERROR]:', error);
+          throw new HttpException(
+            'Failed to send reservation rejection email',
+            500
+          );
+        }
+      }
 }
