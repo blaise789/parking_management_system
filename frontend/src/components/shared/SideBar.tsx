@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import NavItem from '../ui/NavItem';
-import { CalendarClock, Car, Home, LogOut, ParkingSquare, Settings, Users } from 'lucide-react';
+import { CalendarClock, Car, Home, LogOut, ParkingSquare, Users } from 'lucide-react';
 // import { useAppSelector } from '@/redux/hooks';
 import { useContext } from 'react';
 import { CommonContext } from '@/context/CommonContext';

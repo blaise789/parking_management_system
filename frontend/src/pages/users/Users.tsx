@@ -1,37 +1,20 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import Header from '@/components/shared/Header';
-import SideBar from '@/components/shared/SideBar';
-import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import { toast } from 'react-hot-toast';
-import { 
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  Button,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel
-} from '@mui/material';
-import { CommonContext } from '@/context/CommonContext';
-// import { getUsers, createUser, updateUser, deleteUser } from '@/services/users';
+// pages/users.tsx
+import React, { useState, useEffect, useContext } from "react";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import Header from "@/components/shared/Header";
+import SideBar from "@/components/shared/SideBar";
+import { FiSearch, FiPlus } from "react-icons/fi";
+import { toast } from "react-hot-toast";
+import { CommonContext } from "@/context/CommonContext";
+import { UserModal } from "@/components/modals/UserModal";
+import { User, UserInputs } from "@/types";
+import { useSelector } from "react-redux";
+import { getUsers, createUser, updateUser, deleteUser } from "@/services/users";
 
 // Import PrimeReact styles
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  password?: string;
-  role: 'user' | 'admin';
-  status: 'active' | 'inactive';
-}
 
 const Users: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -40,53 +23,48 @@ const Users: React.FC = () => {
   const [searchKey, setSearchKey] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
-  const [meta, setMeta] = useState<any>(null);
-  
-  const { user } = useContext(CommonContext);
+
+  const { user, users, setUsers, setMeta, meta } = useContext(CommonContext);
+  const userSlice = useSelector((state: any) => state.userSlice);
+  // const role: string = userSlice.user.role;
+
+  const fetchUsers = async () => {
+    await getUsers({
+      page,
+      limit,
+      searchKey,
+      setLoading,
+      setMeta,
+      setUsers,
+    });
+  };
 
   useEffect(() => {
     fetchUsers();
   }, [page, limit, searchKey]);
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      // const response = await getUsers({ page, limit, searchKey });
-      // setUsers(response.data);
-      // setMeta(response.meta);
-      
-      // Mock data for demonstration
-      const mockUsers: User[] = [
-        { id: '1', name: 'John Doe', email: 'john@example.com', role: 'user', status: 'active' },
-        { id: '2', name: 'Admin User', email: 'admin@example.com', role: 'admin', status: 'active' },
-        { id: '3', name: 'Jane Smith', email: 'jane@example.com', role: 'user', status: 'inactive' },
-      ];
-      setUsers(mockUsers);
-      setMeta({ total: mockUsers.length, page, limit });
-    } catch (error) {
-      toast.error('Failed to fetch users');
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (userData: Omit<User, 'id'>) => {
+  const handleSubmit = async (userData: UserInputs) => {
     try {
       setLoading(true);
       if (selectedUser) {
-        // await updateUser(selectedUser.id, userData);
-        toast.success('User updated successfully');
+        await updateUser({
+          id: selectedUser.id,
+          userData,
+          setLoading,
+        });
+        toast.success("User updated successfully");
       } else {
-        // await createUser(userData);
-        toast.success('User created successfully');
+        await createUser({
+          userData,
+          setLoading,
+        });
+        toast.success("User created successfully");
       }
       setIsModalOpen(false);
       fetchUsers();
     } catch (error) {
-      toast.error(`Failed to ${selectedUser ? 'update' : 'create'} user`);
-      console.error('Error:', error);
+      toast.error(`Failed to ${selectedUser ? "update" : "create"} user`);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -95,12 +73,15 @@ const Users: React.FC = () => {
   const handleDeleteUser = async (user: User) => {
     try {
       setLoading(true);
-      // await deleteUser(user.id);
-      toast.success('User deleted successfully');
+      await deleteUser({
+        id: user.id,
+        setLoading,
+      });
+      toast.success("User deleted successfully");
       fetchUsers();
     } catch (error) {
-      toast.error('Failed to delete user');
-      console.error('Error:', error);
+      toast.error("Failed to delete user");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -108,19 +89,27 @@ const Users: React.FC = () => {
 
   const statusBodyTemplate = (rowData: User) => {
     return (
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-        rowData.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-      }`}>
-        {rowData.status.charAt(0).toUpperCase() + rowData.status.slice(1)}
+      <span
+        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+          rowData.status === "active"
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800"
+        }`}
+      >
+        {rowData?.status ?? rowData.status}
       </span>
     );
   };
 
   const roleBodyTemplate = (rowData: User) => {
     return (
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-        rowData.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-      }`}>
+      <span
+        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+          rowData.role === "admin"
+            ? "bg-purple-100 text-purple-800"
+            : "bg-blue-100 text-blue-800"
+        }`}
+      >
         {rowData.role.charAt(0).toUpperCase() + rowData.role.slice(1)}
       </span>
     );
@@ -136,13 +125,13 @@ const Users: React.FC = () => {
             setIsModalOpen(true);
           }}
         >
-          <FiEdit2 className="inline mr-1" /> Edit
+          Edit
         </button>
         <button
           className="text-red-600 hover:text-red-900"
           onClick={() => handleDeleteUser(rowData)}
         >
-          <FiTrash2 className="inline mr-1" /> Delete
+          Delete
         </button>
       </div>
     );
@@ -167,7 +156,7 @@ const Users: React.FC = () => {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header name={user?.firstName || 'Admin'} />
+        <Header name={user?.firstName || "Admin"} />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
@@ -223,12 +212,21 @@ const Users: React.FC = () => {
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                     rowsPerPageOptions={[5, 10, 20, 50]}
-                    paginatorClassName="px-6 py-3 border-t border-gray-200 bg-gray-50 rounded-b-lg"
                   >
                     <Column field="name" header="Name" sortable />
                     <Column field="email" header="Email" sortable />
-                    <Column field="role" header="Role" body={roleBodyTemplate} sortable />
-                    <Column field="status" header="Status" body={statusBodyTemplate} sortable />
+                    <Column
+                      field="role"
+                      header="Role"
+                      body={roleBodyTemplate}
+                      sortable
+                    />
+                    <Column
+                      field="status"
+                      header="Status"
+                      body={statusBodyTemplate}
+                      sortable
+                    />
                     <Column header="Actions" body={actionBodyTemplate} />
                   </DataTable>
                 </div>
@@ -238,97 +236,13 @@ const Users: React.FC = () => {
         </main>
       </div>
 
-      {/* Material-UI Dialog */}
-      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle className="bg-gray-50 p-4 border-b">
-          {selectedUser ? 'Edit User' : 'Add New User'}
-        </DialogTitle>
-        <DialogContent className="p-4 space-y-4">
-          <TextField
-            label="Full Name"
-            variant="outlined"
-            fullWidth
-            value={selectedUser?.name || ''}
-            onChange={(e) => setSelectedUser({
-              ...(selectedUser || {} as User),
-              name: e.target.value
-            })}
-          />
-          
-          <TextField
-            label="Email"
-            variant="outlined"
-            fullWidth
-            type="email"
-            value={selectedUser?.email || ''}
-            onChange={(e) => setSelectedUser({
-              ...(selectedUser || {} as User),
-              email: e.target.value
-            })}
-          />
-          
-          {!selectedUser?.id && (
-            <TextField
-              label="Password"
-              variant="outlined"
-              fullWidth
-              type="password"
-              value={selectedUser?.password || ''}
-              onChange={(e) => setSelectedUser({
-                ...(selectedUser || {} as User),
-                password: e.target.value
-              })}
-            />
-          )}
-          
-          <FormControl fullWidth variant="outlined">
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={selectedUser?.role || 'user'}
-              onChange={(e) => setSelectedUser({
-                ...(selectedUser || {} as User),
-                role: e.target.value as 'user' | 'admin'
-              })}
-              label="Role"
-            >
-              <MenuItem value="user">User</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-            </Select>
-          </FormControl>
-          
-          <FormControl fullWidth variant="outlined">
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={selectedUser?.status || 'active'}
-              onChange={(e) => setSelectedUser({
-                ...(selectedUser || {} as User),
-                status: e.target.value as 'active' | 'inactive'
-              })}
-              label="Status"
-            >
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="inactive">Inactive</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions className="p-4 border-t">
-          <Button 
-            onClick={() => setIsModalOpen(false)}
-            variant="outlined"
-            color="secondary"
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={() => selectedUser && handleSubmit(selectedUser)}
-            variant="contained"
-            color="primary"
-            disabled={!selectedUser?.name || !selectedUser?.email || (!selectedUser.id && !selectedUser.password)}
-          >
-            {selectedUser?.id ? 'Update' : 'Create'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <UserModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialData={selectedUser}
+        onSubmit={handleSubmit}
+        isEdit={!!selectedUser}
+      />
     </div>
   );
 };

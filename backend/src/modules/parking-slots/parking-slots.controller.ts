@@ -57,13 +57,14 @@ export class ParkingSlotsController {
   async findAll(
     @Query('page') page: number = 0,
     @Query('limit') limit: number = 10,
-    @Query('searchKey') searchKey: string,
+    @Query('searchKey') searchKey?: string,
   ) {
     const users = await this.parkingSlotsService.findAll(
       page,
       limit,
       searchKey,
     );
+    
     return ServerResponse.success('Parking slots fetched successfully', {
       ...users,
     });

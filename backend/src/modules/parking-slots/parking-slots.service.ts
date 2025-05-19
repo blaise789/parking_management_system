@@ -17,7 +17,7 @@ import { BulkCreateParkingSlotDto } from './dtos/builk-create-slots.dto';
 export class ParkingSlotsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number, searchKey?: string) {
+  async   findAll(page: number, limit: number, searchKey?: string) {
     // Convert searchKey to uppercase for enum comparison
     const searchUpper = searchKey?.toUpperCase();
 

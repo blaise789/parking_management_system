@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { DriverGuard } from 'src/guards/driver.guard';
 import { AuthRequest } from 'src/types';
@@ -20,16 +28,16 @@ export class VehicleController {
     @Body() createVehicleDto: CreateVehicleDto,
   ) {
     console.log(req.user.id);
+    console.log(createVehicleDto)
     return this.vehicleService.createVehicle(req.user.id, createVehicleDto);
   }
-  // 
-  @Get("/search")
+  //
+  @Get('/search')
   searchVehicleByPlateNumber(
-    @Query("plateno") plateNumber:string,
     @Query('page') page: number = 0,
-    @Query('limit') limit: number = 10
-  ){
- return this.vehicleService.searchVehicle(page,limit,plateNumber)
+    @Query('limit') limit: number = 10,
+    @Query('searchKey') searchKey: string,
+  ) {
+    return this.vehicleService.searchVehicle(page, limit, searchKey);
   }
-
 }

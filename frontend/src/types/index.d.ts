@@ -1,14 +1,20 @@
 export interface User {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
-export type SlotStatus = 'AVAILABLE' | 'UNVAILABLE'
-export type VehicleType = 'CAR' | 'MOTORCYCLE' | 'TRUCK';
-export type VehicleSize = 'SMALL' | 'MEDIUM' | 'LARGE';
-export type ParkingLocation = 'NORTH' | 'SOUTH' | 'EAST' | 'WEST';
 
+export type UserInputs = Omit<User, "id" | "createdAt" | "updatedAt"> & {
+  password?: string;
+};
+export type SlotStatus = "AVAILABLE" | "UNVAILABLE";
+export type VehicleType = "CAR" | "MOTORCYCLE" | "TRUCK";
+export type VehicleSize = "SMALL" | "MEDIUM" | "LARGE";
+export type ParkingLocation = "NORTH" | "SOUTH" | "EAST" | "WEST";
 
 export interface IMeta {
   total: number;
@@ -19,7 +25,6 @@ export interface IMeta {
   next: number;
 }
 // types.ts
-
 
 export interface IParkingSlot {
   id: string;
@@ -49,9 +54,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-
 // For bulk operations
-
 
 // types.ts
 export interface BulkCreateParkingSlotDto {
@@ -62,17 +65,18 @@ export interface BulkCreateParkingSlotDto {
   status?: SlotStatus;
 }
 // for vehicles
-interface Vehicle {
-  id: string;
-  userId: string;
+export interface IVehicle {
+  id: number;
   plateNumber: string;
-  vehicleType: 'CAR' | 'MOTORCYCLE' | 'TRUCK';
-  size: 'SMALL' | 'MEDIUM' | 'LARGE';
-  color?: string;
-  model?: string;
-  createdAt: string;
-  updatedAt: string;
+  vehicleType: "CAR" | "MOTORCYCLE" | "TRUCK";
+  size: "SMALL" | "MEDIUM" | "LARGE";
+  brand: string; // Changed from 'maker' to 'brand' for consistency
+  color: string;
+  requests: any; // or proper request type
 }
+
+// Form input type (without id and requests)
+export type VehicleInputs = Omit<IVehicle, "id" | "requests">;
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -83,15 +87,52 @@ interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
-interface SlotRequest {
+interface ISlotRequest {
   id: string;
   userId: string;
   vehicleId: string;
   slotId: string | null;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   rejectionReason?: string;
   createdAt: string;
   updatedAt: string;
   vehicle: Vehicle;
   slot?: ParkingSlot;
+}
+
+export enum ReservationStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
+export interface ParkingReservation {
+  id: string;
+  userId: string;
+  vehicleId: number;
+  slotId: string | null;
+  slotNumber: string | null;
+  status: ReservationStatus;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  vehicle: {
+    id: number;
+    plateNumber: string;
+    vehicleType: VehicleType;
+    size: VehicleSize;
+  };
+  parkingSlot?: {
+    id: string;
+    slotNumber: string;
+    size: VehicleSize;
+    vehicleType: VehicleType;
+    location: ParkingLocation;
+  };
+  createdAt: string;
+  updatedAt: string;
+  expiration?: string;
 }
